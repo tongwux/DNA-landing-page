@@ -287,14 +287,13 @@
     solutionDialog.close();hero.scrollIntoView({behavior:reduced.matches?'instant':'smooth'});inspect('gc');
   });
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected){e.preventDefault();closeInspector();}});
-  function project(point){
+  function project(point,rect=canvas.getBoundingClientRect()){
     if(!lastModel||!projection)return null;
     const p=[...point,1],world=[0,0,0,0],clip=[0,0,0,0];
     for(let r=0;r<4;r++)for(let k=0;k<4;k++)world[r]+=lastModel[k*4+r]*p[k];
     for(let r=0;r<4;r++)for(let k=0;k<4;k++)clip[r]+=projection[k*4+r]*world[k];
     if(clip[3]<=0)return null;
-    const rect=canvas.getBoundingClientRect();
-    return {x:(clip[0]/clip[3]*.5+.5)*rect.width,y:(.5-clip[1]/clip[3]*.5)*rect.height};
+    return {depth:clip[3],x:(clip[0]/clip[3]*.5+.5)*rect.width,y:(.5-clip[1]/clip[3]*.5)*rect.height};
   }
   function positionHotspots(){
     if(selected)return;
@@ -335,12 +334,47 @@
   }
   updateToggle();toggle.addEventListener('click',()=>{paused=!paused;updateToggle();requestDraw();});
   reduced.addEventListener('change',e=>{paused=e.matches;updateToggle();requestDraw();});
+  // Decorative dust shares the model's projection and animation lifecycle.
+  // No extra animation loop; it freezes with Pause/reduced motion and when offscreen.
+  const particleCanvas=document.createElement('canvas');
+  particleCanvas.id='dna-particles';particleCanvas.setAttribute('aria-hidden','true');
+  canvas.before(particleCanvas);
+  const particleContext=particleCanvas.getContext('2d');
+  const particleSprites=[['#f1ffbd','#c6e95c'],['#fff5d1','#cbd66d']].map(colors=>{
+    const sprite=document.createElement('canvas');sprite.width=sprite.height=32;
+    const c=sprite.getContext('2d'),glow=c.createRadialGradient(16,16,0,16,16,16);
+    glow.addColorStop(0,colors[0]);glow.addColorStop(.12,colors[0]);
+    glow.addColorStop(.32,colors[1]+'b0');glow.addColorStop(1,colors[1]+'00');
+    c.fillStyle=glow;c.fillRect(0,0,32,32);return sprite;
+  });
+  let particleTime=0,particleSeed=1729;
+  function randomParticle(){particleSeed=(particleSeed*1664525+1013904223)>>>0;return particleSeed/4294967296;}
+  const particles=Array.from({length:160},()=>({angle:randomParticle()*Math.PI*2,radius:1.85+randomParticle()*2.6,y:randomParticle()*16-8,speed:.065+randomParticle()*.12,size:randomParticle(),phase:randomParticle()*Math.PI*2}));
+  function drawParticles(){
+    if(!particleContext)return;
+    const rect=canvas.getBoundingClientRect(),ratio=canvas.width/rect.width;
+    particleContext.setTransform(ratio,0,0,ratio,0,0);
+    particleContext.clearRect(0,0,rect.width,rect.height);
+    const count=window.innerWidth<701?72:particles.length;
+    for(let i=0;i<count;i++){
+      const p=particles[i],a=p.angle+particleTime*.025;
+      const y=((p.y+particleTime*p.speed+8)%16)-8;
+      const projected=project([Math.cos(a)*p.radius,y,Math.sin(a)*p.radius],rect);
+      if(!projected||projected.depth<.8)continue;
+      const size=Math.min(13,(3.2+p.size*4.5)*12/projected.depth);
+      if(projected.x<-size||projected.x>rect.width+size||projected.y<-size||projected.y>rect.height+size)continue;
+      const edge=Math.max(0,Math.min(1,(8-Math.abs(y))/1.5));
+      particleContext.globalAlpha=(.32+p.size*.42)*edge*(.85+.15*Math.sin(p.phase+particleTime*.7))*(1-focus*.2);
+      particleContext.drawImage(particleSprites[i%2],projected.x-size/2,projected.y-size/2,size,size);
+    }
+    particleContext.globalAlpha=1;
+  }
   const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)requestDraw();});observer.observe(canvas);
   function resize(){
     const r=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,window.innerWidth<701?1.5:1.75);
     const w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);
     if(!w||!h)return;
-    canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);
+    canvas.width=w;canvas.height=h;particleCanvas.width=w;particleCanvas.height=h;gl.viewport(0,0,w,h);
     const f=1/Math.tan(43*Math.PI/360),aspect=w/h,near=.1,far=100;
     projection=new Float32Array([f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0]);
     gl.uniformMatrix4fv(uProjection,false,projection);
@@ -377,6 +411,7 @@
     frame=0;if(contextLost||document.hidden||!visible){lastTime=0;return;}
     const dt=lastTime?Math.min((time-lastTime)/1000,.05):0;lastTime=time;
     if(!paused&&!dragging&&!selected)targetAngle+=dt*.13;
+    if(!paused&&!selected&&!reduced.matches)particleTime+=dt;
     const easing=1-Math.exp(-dt*7);angle+=(targetAngle-angle)*easing;tilt+=(targetTilt-tilt)*easing;
     const goal=selected?1:0;
     const flightEase=1-Math.exp(-dt*3.5);
@@ -406,6 +441,7 @@
       model[14]=baseZ*(1-focus)+(-4.9-rz)*focus;
     }
     lastModel=model;
+    drawParticles();
     gl.uniform1f(uSelectedY,lastSelection?.y??0);gl.uniform1f(uFocus,focus);
     positionHotspots();
     gl.uniformMatrix4fv(uModel,false,model);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);

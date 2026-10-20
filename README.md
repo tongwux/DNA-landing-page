@@ -48,3 +48,8 @@ Base arms stop at a wide central gap (1.24 model units across, approximately hal
 The Pages build uses `scripts/build-site.py` to fingerprint JavaScript, CSS and the favicon by content. Each model update gets a different script URL, preventing the browser from reusing a previous model after the new HTML is loaded. `scripts/verify-live.py` checks the hashed assets referenced by the actual deployed HTML.
 
 Close-up camera orientation turns to face the selected base pair, so the two disconnected arms remain visually distinct instead of overlapping in depth.
+
+
+## Ambient particles
+
+A sparse field of 160 soft yellow-green dust particles (72 on mobile) follows the DNA camera in a decorative canvas beneath the model. Pre-rendered glow sprites keep drawing inexpensive. Particles share the existing render loop, pause with the animation, stop offscreen, and remain static for reduced-motion users. The overlay cannot intercept pointer input and is hidden from assistive technology.
