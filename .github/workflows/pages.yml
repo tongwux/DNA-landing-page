@@ -22,10 +22,7 @@ jobs:
         run: npm run check
       - uses: actions/configure-pages@v5
       - name: Prepare static website
-        run: |
-          mkdir -p _site
-          cp index.html styles.css app.js favicon.svg .nojekyll _site/
-          printf '{"commit":"%s"}\n' "$GITHUB_SHA" > _site/release.json
+        run: python3 scripts/build-site.py
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

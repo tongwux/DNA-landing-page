@@ -1,5 +1,6 @@
 """Verify the deployed revision and critical assets using unauthenticated HTTPS."""
 import json
+import re
 import sys
 import time
 import urllib.error
@@ -23,10 +24,14 @@ for attempt in range(12):
         assert revision == expected, f'Expected {expected}, received {revision}'
         html = fetch('index.html')
         assert 'id="dna-inspector"' in html and 'id="solution-dialog"' in html, 'Missing explorer or research dialog'
-        script = fetch('app.js')
+        script_path = re.search(r'<script src="(app\.[a-f0-9]{12}\.js)"', html)
+        assert script_path, 'HTML must reference a versioned model script'
+        script = fetch(script_path.group(1))
         assert 'function inspect(' in script and 'movingCamera' in script, 'Unexpected application script'
-        assert '--brand:' in fetch('styles.css'), 'Missing styles'
-        assert '<svg' in fetch('favicon.svg'), 'Missing favicon'
+        style_path = re.search(r'href="(styles\.[a-f0-9]{12}\.css)"', html)
+        assert style_path and '--brand:' in fetch(style_path.group(1)), 'Missing versioned styles'
+        icon_path = re.search(r'href="(favicon\.[a-f0-9]{12}\.svg)"', html)
+        assert icon_path and '<svg' in fetch(icon_path.group(1)), 'Missing versioned favicon'
         print(f'PUBLIC RELEASE VERIFIED: {base} (commit {revision})')
         break
     except (AssertionError, urllib.error.URLError, ValueError, KeyError) as error:

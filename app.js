@@ -169,7 +169,7 @@
   function helix(y,side){const angle=y*1.18+side*Math.PI;return [Math.cos(angle)*1.22,y,Math.sin(angle)*1.22];}
   // Open-ended base arms and separated backbone segments, inspired by the reference.
   // The central gap is intentional: no rod, sphere or luminous bridge crosses it.
-  const MODEL={rungs:47,spacing:.335,halfGap:.36,backboneGap:.075};
+  const MODEL={rungs:47,spacing:.335,halfGap:.62,backboneGap:.075};
   const mixPoint=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
   function axisFrame(axis){
     const length=Math.hypot(...axis),w=axis.map(v=>v/length);
@@ -243,7 +243,7 @@
   attribute('aPosition',positions,3);attribute('aNormal',normals,3);attribute('aMaterial',materials,1);
   const uModel=gl.getUniformLocation(program,'uModel'),uProjection=gl.getUniformLocation(program,'uProjection');
   const uSelectedY=gl.getUniformLocation(program,'uSelectedY'),uFocus=gl.getUniformLocation(program,'uFocus');
-  let projection=null,lastModel=null,focus=0,selected=null,lastSelection=null,returnFocus=null,cameraAnchor=[0,0,0];
+  let projection=null,lastModel=null,focus=0,selected=null,lastSelection=null,returnFocus=null,cameraAnchor=[0,0,0],inspectionYaw=0,inspectionTargetYaw=0;
   gl.enable(gl.DEPTH_TEST); gl.clearColor(0,0,0,0);
   function multiply(a,b){const out=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)out[c*4+r]+=a[k*4+r]*b[c*4+k];return out;}
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -255,9 +255,10 @@
   };
   function inspect(key,custom=null){
     const feature=features[key];
-    if(!selected){returnFocus=document.activeElement;cameraAnchor=[...(custom?.point??feature.point)];}
+    if(!selected){returnFocus=document.activeElement;cameraAnchor=[...(custom?.point??feature.point)];inspectionYaw=angle;}
     selected={key,y:custom?.y??feature.y,point:custom?.point??feature.point};
     lastSelection=selected;
+    inspectionTargetYaw=selected.y*1.18;
     targetAngle=angle;targetTilt=tilt;pointerX=0;pointerY=0;
     hero.classList.add('is-focused');inspector.hidden=false;
     document.getElementById('detail-index').textContent=feature.index+' / 03';
@@ -354,7 +355,7 @@
   });
   canvas.addEventListener('pointermove',e=>{
     const r=canvas.getBoundingClientRect();pointerX=(e.clientX-r.left)/r.width-.5;pointerY=(e.clientY-r.top)/r.height-.5;
-    if(dragging){travel=Math.max(travel,Math.hypot(e.clientX-downX,e.clientY-downY));targetAngle+=(e.clientX-lastX)*.009;targetTilt=Math.max(-.35,Math.min(.35,targetTilt+(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY;}
+    if(dragging){travel=Math.max(travel,Math.hypot(e.clientX-downX,e.clientY-downY));if(selected)inspectionTargetYaw+=(e.clientX-lastX)*.009;else targetAngle+=(e.clientX-lastX)*.009;targetTilt=Math.max(-.35,Math.min(.35,targetTilt+(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY;}
     requestDraw();
   });
   function release(){dragging=false;canvas.classList.remove('dragging');}
@@ -362,7 +363,7 @@
   canvas.addEventListener('pointerleave',()=>{pointerX=0;pointerY=0;requestDraw();});
   canvas.addEventListener('keydown',e=>{
     if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();
-    if(e.key==='ArrowLeft')targetAngle-=.2;if(e.key==='ArrowRight')targetAngle+=.2;
+    if(e.key==='ArrowLeft'){if(selected)inspectionTargetYaw-=.2;else targetAngle-=.2;}if(e.key==='ArrowRight'){if(selected)inspectionTargetYaw+=.2;else targetAngle+=.2;}
     if(e.key==='ArrowUp')targetTilt=Math.max(-.35,targetTilt-.08);if(e.key==='ArrowDown')targetTilt=Math.min(.35,targetTilt+.08);
     if(e.key===' '&&!selected){paused=!paused;updateToggle();}
     if(e.key==='Enter'){e.preventDefault();if(!selected)inspect('gc');}
@@ -384,7 +385,9 @@
     if(lastSelection){
       cameraAnchor=cameraAnchor.map((v,i)=>reduced.matches?lastSelection.point[i]:v+(lastSelection.point[i]-v)*flightEase);
     }
-    const y=angle+focus*.65+(!reduced.matches&&!selected?pointerX*.17:0),x=tilt+focus*.16+(!reduced.matches&&!selected?pointerY*.06:0),z=-.43+focus*.68;
+    const yawDelta=Math.atan2(Math.sin(inspectionTargetYaw-inspectionYaw),Math.cos(inspectionTargetYaw-inspectionYaw));
+    inspectionYaw+=reduced.matches?yawDelta:yawDelta*flightEase;
+    const y=angle*(1-focus)+inspectionYaw*focus+(!reduced.matches&&!selected?pointerX*.17:0),x=tilt+focus*.16+(!reduced.matches&&!selected?pointerY*.06:0),z=-.43+focus*.68;
     const cy=Math.cos(y),sy=Math.sin(y),cx=Math.cos(x),sx=Math.sin(x),cz=Math.cos(z),sz=Math.sin(z);
     const ry=[cy,0,-sy,0,0,1,0,0,sy,0,cy,0,0,0,0,1];
     const rx=[1,0,0,0,0,cx,sx,0,0,-sx,cx,0,0,0,0,1];
@@ -407,7 +410,7 @@
     positionHotspots();
     gl.uniformMatrix4fv(uModel,false,model);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES,0,positions.length/3);
-    const movingCamera=Math.abs(focus-goal)>.0001 || Math.abs(angle-targetAngle)>.0001 || Math.abs(tilt-targetTilt)>.0001 || (lastSelection&&cameraAnchor.some((v,i)=>Math.abs(v-lastSelection.point[i])>.0001));
+    const movingCamera=(focus>0&&Math.abs(yawDelta)>.0001)||Math.abs(focus-goal)>.0001 || Math.abs(angle-targetAngle)>.0001 || Math.abs(tilt-targetTilt)>.0001 || (lastSelection&&cameraAnchor.some((v,i)=>Math.abs(v-lastSelection.point[i])>.0001));
     if((!paused&&!selected&&!reduced.matches)||dragging||movingCamera)requestDraw();
   }
   requestDraw();
