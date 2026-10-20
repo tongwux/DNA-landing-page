@@ -38,3 +38,8 @@ Connect this repository in Netlify. The included `netlify.toml` builds a `public
 Push the project to `main`, select Settings → Pages → Build and deployment → Source → GitHub Actions, and run the Publish HELIXA workflow. This publishes the `_site` artifact via the included workflow. GitHub Pages must be available on the repository's current account plan and visibility. Relative asset paths support repository subdirectories. Custom response headers from `_headers` apply on Netlify, not GitHub Pages.
 
 The Pages workflow validates the DOM/renderer contract, publishes a revision manifest, and then checks the live HTTPS page and critical assets without authentication. A successful “Verify public release and assets” step confirms the deployed commit. Use a WebGL-capable browser to test the interactive model. Research area cards open their own accessible dialogs and link back to DNA exploration.
+
+
+## Open DNA visual model
+
+Base arms stop at a configurable central gap (`MODEL.halfGap` in `app.js`) and never bridge it. The helix also uses separate curved backbone segments with small joints. Cut surfaces include annular rims, inset luminous lenses, tapered sleeves and fine machined rings. This is an exploded design illustration: the visual gaps do not represent severed DNA or imply that complementary bases lack hydrogen bonds. Scientific descriptions remain conceptual rather than atom-scale geometry.

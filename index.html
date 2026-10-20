@@ -26,7 +26,7 @@
         <a class="button primary" href="#science">Explore our research areas <span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a>
         <div class="hero-note"><span class="note-line"></span> Click a glowing DNA marker to look closer.<br><span>Drag to rotate. Follow your curiosity.</span></div>
       </div>
-      <div class="dna-stage"><canvas id="dna" tabindex="0" role="img" aria-label="Interactive three-dimensional DNA double helix. Click a base pair to inspect it. Drag to rotate, use arrow keys to turn, Enter to inspect, Escape to return, or Space to pause."></canvas><div class="dna-hotspots" aria-label="Explore DNA structures"><button class="dna-hotspot" data-feature="at" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">A–T BASE PAIR <small>EXPLORE ↗</small></span></button><button class="dna-hotspot" data-feature="gc" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">G–C BASE PAIR <small>EXPLORE ↗</small></span></button><button class="dna-hotspot" data-feature="backbone" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">THE BACKBONE <small>EXPLORE ↗</small></span></button></div><div id="webgl-fallback" hidden><div class="fallback-helix" aria-hidden="true">🧬</div><p>Enable WebGL to explore the interactive DNA.</p></div></div>
+      <div class="dna-stage"><canvas id="dna" tabindex="0" role="img" aria-label="Interactive three-dimensional DNA double helix. Click a base pair to inspect it. Drag to rotate, use arrow keys to turn, Enter to inspect, Escape to return, or Space to pause."></canvas><div class="dna-hotspots" aria-label="Explore DNA structures"><button class="dna-hotspot" data-feature="at" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">A–T BASE PAIR <small>EXPLORE <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></small></span></button><button class="dna-hotspot" data-feature="gc" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">G–C BASE PAIR <small>EXPLORE <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></small></span></button><button class="dna-hotspot" data-feature="backbone" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">THE BACKBONE <small>EXPLORE <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></small></span></button></div><div id="webgl-fallback" hidden><div class="fallback-helix" aria-hidden="true">🧬</div><p>Enable WebGL to explore the interactive DNA.</p></div></div>
       <aside class="dna-inspector" id="dna-inspector" aria-labelledby="detail-title" hidden>
         <button class="explorer-back" id="explorer-back">← <span>Back to full DNA</span><kbd>ESC</kbd></button>
         <div class="eyebrow">INSIDE THE DOUBLE HELIX <span id="detail-index">01 / 03</span></div>
@@ -34,9 +34,9 @@
         <h2 id="detail-title" tabindex="-1">Adenine meets thymine.</h2>
         <p id="detail-description"></p>
         <dl class="detail-facts"><div><dt id="detail-fact-label"></dt><dd id="detail-fact-value"></dd></div><div><dt>ROLE</dt><dd id="detail-role"></dd></div></dl>
-        <p class="detail-caption">Simplified molecular illustration · Not to atomic scale</p>
+        <p class="detail-caption">Exploded molecular illustration · Not to atomic scale</p>
         <nav class="detail-nav" aria-label="DNA structure details"><button data-detail="at" aria-label="Inspect A–T base pair">A–T</button><button data-detail="gc" aria-label="Inspect G–C base pair">G–C</button><button data-detail="backbone" aria-label="Inspect sugar-phosphate backbone">Backbone</button></nav>
-        <a class="detail-next text-link" href="#solutions">Explore related research areas <span>↗</span></a>
+        <a class="detail-next text-link" href="#solutions">Explore related research areas <span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a>
       </aside>
       <div class="molecule-label label-top"><span class="cross">+</span><div>THE CODE OF LIFE<span>01 / DOUBLE HELIX</span></div></div>
       <div class="molecule-label label-bottom"><span class="cross">+</span><div>FOUR BASES.<br>LIMITLESS POSSIBILITIES.</div></div>
@@ -60,7 +60,7 @@
     <h2 id="solution-title"></h2><p id="solution-intro"></p>
     <ul id="solution-points"></ul>
     <p class="solution-note">An illustrative research workflow from a fictional life science studio.</p>
-    <button class="button primary" id="solution-explore">Explore the DNA model <span>↗</span></button>
+    <button class="button primary" id="solution-explore">Explore the DNA model <span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></button>
   </dialog>
   <script src="app.js"></script>
 </body>

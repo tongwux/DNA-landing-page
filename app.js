@@ -52,12 +52,14 @@
     varying vec3 vPosition;
     varying float vMaterial;
     varying float vLocalY;
+    varying vec3 vLocalPosition;
     void main(){
       vec4 p = uModel * vec4(aPosition,1.0);
       vPosition = p.xyz;
       vNormal = mat3(uModel)*aNormal;
       vMaterial = aMaterial;
       vLocalY = aPosition.y;
+      vLocalPosition = aPosition;
       gl_Position = uProjection*p;
     }`;
   const fragment = `
@@ -66,6 +68,7 @@
     varying vec3 vPosition;
     varying float vMaterial;
     varying float vLocalY;
+    varying vec3 vLocalPosition;
     uniform float uSelectedY;
     uniform float uFocus;
     void main(){
@@ -91,9 +94,16 @@
       color+=vec3(.58,.73,.13)*max(dot(N,L2),0.0)*.22;
       color+=glass*pow(diffuse,14.0)*.35;
       color=mix(color,color*vec3(.78,1.0,.52),min(vMaterial,1.0)*.2);
-      float collar=step(1.5,vMaterial);
+      float collar=1.0-step(.25,abs(vMaterial-2.0));
       vec3 collarColor=vec3(.68,.87,.18)*(.7+rim*.8)+vec3(1.0,.98,.56)*spec;
       color=mix(color,collarColor,collar);
+      float socket=1.0-step(.25,abs(vMaterial-3.0));
+      color=mix(color,vec3(.13,.19,.09)+glass*rim*.65+spec*.9,socket);
+      float lens=1.0-step(.25,abs(vMaterial-4.0));
+      color=mix(color,vec3(.63,.87,.18)*(.8+facing*.3)+spec*.5,lens);
+      float glassSurface=1.0-step(1.5,vMaterial);
+      float etching=pow(max(0.0,sin(vLocalY*110.0+vLocalPosition.x*3.0)),64.0);
+      color+=glassSurface*etching*vec3(.04,.06,.025)*diffuse;
       float depth=clamp((vPosition.z+13.0)/8.0,.42,1.0);
       float selectedBand=1.0-smoothstep(.14,.30,abs(vLocalY-uSelectedY));
       color=mix(color*.55,color+vec3(.34,.42,.10),selectedBand)*uFocus+color*(1.0-uFocus);
@@ -128,19 +138,19 @@
       [a,c,b,b,c,d].forEach(x=>point(x[0],x[1],m));
     }
   }
-  function cylinder(a,b,r,m) {
+  function cylinder(a,b,r,m,endRadius=r) {
     const delta=b.map((v,i)=>v-a[i]),len=Math.hypot(...delta),w=delta.map(v=>v/len);
     let u=Math.abs(w[1])<.9?[-w[2],0,w[0]]:[0,w[2],-w[1]];
     const ul=Math.hypot(...u);u=u.map(v=>v/ul);
     const v=[w[1]*u[2]-w[2]*u[1],w[2]*u[0]-w[0]*u[2],w[0]*u[1]-w[1]*u[0]];
-    function edge(t,c){const n=u.map((x,i)=>x*Math.cos(t)+v[i]*Math.sin(t));return [c.map((x,i)=>x+n[i]*r),n];}
+    function edge(t,c,radius){const n=u.map((x,i)=>x*Math.cos(t)+v[i]*Math.sin(t));return [c.map((x,i)=>x+n[i]*radius),n];}
     for(let i=0;i<12;i++){
       const t=i/12*Math.PI*2,t2=(i+1)/12*Math.PI*2;
-      const p=edge(t,a),q=edge(t2,a),s=edge(t,b),z=edge(t2,b);
+      const p=edge(t,a,r),q=edge(t2,a,r),s=edge(t,b,endRadius),z=edge(t2,b,endRadius);
       [p,s,q,q,s,z].forEach(x=>point(x[0],x[1],m));
     }
   }
-  function collar(center,axis,radius=.14){
+  function collar(center,axis,radius=.14,thickness=.025){
     const length=Math.hypot(...axis),w=axis.map(v=>v/length);
     let u=Math.abs(w[1])<.9?[-w[2],0,w[0]]:[0,w[2],-w[1]];
     const l=Math.hypot(...u);u=u.map(v=>v/l);
@@ -148,7 +158,7 @@
     function vertex(a,b){
       const radial=u.map((x,i)=>x*Math.cos(a)+v[i]*Math.sin(a));
       const n=radial.map((x,i)=>x*Math.cos(b)+w[i]*Math.sin(b));
-      return [center.map((x,i)=>x+radial[i]*radius+n[i]*.025),n];
+      return [center.map((x,i)=>x+radial[i]*radius+n[i]*thickness),n];
     }
     for(let i=0;i<18;i++)for(let j=0;j<6;j++){
       const a=i/18*Math.PI*2,b=j/6*Math.PI*2,an=(i+1)/18*Math.PI*2,bn=(j+1)/6*Math.PI*2;
@@ -157,20 +167,72 @@
     }
   }
   function helix(y,side){const angle=y*1.18+side*Math.PI;return [Math.cos(angle)*1.22,y,Math.sin(angle)*1.22];}
-  // Continuous tubular backbones, with paired nucleotides and rounded joints.
-  for(let side=0;side<2;side++){
-    for(let y=-7.8;y<7.8;y+=.075)cylinder(helix(y,side),helix(y+.075,side),.092,side);
+  // Open-ended base arms and separated backbone segments, inspired by the reference.
+  // The central gap is intentional: no rod, sphere or luminous bridge crosses it.
+  const MODEL={rungs:47,spacing:.335,halfGap:.36,backboneGap:.075};
+  const mixPoint=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+  function axisFrame(axis){
+    const length=Math.hypot(...axis),w=axis.map(v=>v/length);
+    let u=Math.abs(w[1])<.9?[-w[2],0,w[0]]:[0,w[2],-w[1]];
+    const l=Math.hypot(...u);u=u.map(v=>v/l);
+    return {w,u,v:[w[1]*u[2]-w[2]*u[1],w[2]*u[0]-w[0]*u[2],w[0]*u[1]-w[1]*u[0]]};
   }
-  for(let i=0;i<47;i++){
-    const y=(i-23)*.335,a=helix(y,0),b=helix(y,1);
-    sphere(a,.105,0);sphere(b,.105,1);
-    for(const [center,side] of [[a,0],[b,1]]){
-      const next=helix(y+.02,side),axis=next.map((v,k)=>v-center[k]);
-      collar(center,axis);
+  function disk(center,normal,radius,material,innerRadius=0){
+    const {w,u,v}=axisFrame(normal);
+    const rim=(angle,r)=>center.map((c,i)=>c+(u[i]*Math.cos(angle)+v[i]*Math.sin(angle))*r);
+    for(let i=0;i<20;i++){
+      const a=i/20*Math.PI*2,b=(i+1)/20*Math.PI*2;
+      const outerA=rim(a,radius),outerB=rim(b,radius);
+      if(innerRadius){
+        const innerA=rim(a,innerRadius),innerB=rim(b,innerRadius);
+        [outerA,innerA,outerB,outerB,innerA,innerB].forEach(p=>point(p,w,material));
+      }else [center,outerA,outerB].forEach(p=>point(p,w,material));
     }
-    const mid=a.map((v,k)=>(v+b[k])/2);
-    cylinder(a,mid,.075,i%2);cylinder(mid,b,.075,(i+1)%2);
-    sphere(mid,.09,.4);
+  }
+  function backboneTube(start,end,side){
+    const stacks=Math.ceil((end-start)/.04),slices=14;
+    function vertex(j,i){
+      const y=start+(end-start)*j/stacks,theta=y*1.18+side*Math.PI;
+      const center=helix(y,side),{u,v}=axisFrame([-Math.sin(theta)*1.4396,1,Math.cos(theta)*1.4396]);
+      const angle=i/slices*Math.PI*2,n=u.map((x,k)=>x*Math.cos(angle)+v[k]*Math.sin(angle));
+      return [center.map((x,k)=>x+n[k]*.092),n];
+    }
+    for(let j=0;j<stacks;j++)for(let i=0;i<slices;i++){
+      const a=vertex(j,i),b=vertex(j,i+1),c=vertex(j+1,i),d=vertex(j+1,i+1);
+      [a,c,b,b,c,d].forEach(x=>point(x[0],x[1],side));
+    }
+    for(const [y,direction] of [[start,-1],[end,1]]){
+      const center=helix(y,side),next=helix(y+.01,side),axis=next.map((x,i)=>(x-center[i])*direction);
+      disk(center,axis,.095,3,.052);
+      collar(center,axis,.113,.014);
+    }
+  }
+  for(let side=0;side<2;side++)for(let i=0;i<MODEL.rungs-1;i++){
+    const y=(i-23)*MODEL.spacing;
+    backboneTube(y+MODEL.backboneGap/2,y+MODEL.spacing-MODEL.backboneGap/2,side);
+  }
+  for(let i=0;i<MODEL.rungs;i++){
+    const y=(i-23)*MODEL.spacing;
+    for(let side=0;side<2;side++){
+      const root=helix(y,side),unit=[root[0]/1.22,0,root[2]/1.22];
+      const tip=[unit[0]*MODEL.halfGap,y,unit[2]*MODEL.halfGap];
+      const inward=unit.map(v=>-v),shoulder=mixPoint(root,tip,.22),neck=mixPoint(root,tip,.78);
+      // A tapered glass sleeve, narrow core, dark socket and recessed terminal lens.
+      cylinder(root,shoulder,.087,side,.058);
+      cylinder(shoulder,neck,.044,side);
+      cylinder(neck,tip,.073,3,.096);
+      collar(shoulder,inward,.075,.012);
+      collar(mixPoint(neck,tip,.78),inward,.103,.014);
+      disk(tip,inward,.096,3,.050);
+      // Recess the lens into the socket, away from the open space between the arms.
+      const lens=tip.map((v,k)=>v+unit[k]*.014);
+      disk(lens,inward,.047,4);
+      cylinder(lens,tip,.050,3);
+      for(const offset of [-.018,.018]){
+        const seam=mixPoint(root,shoulder,.5+offset/.2);
+        collar(seam,inward,.083,.006);
+      }
+    }
   }
   function attribute(name,data,size) {
     const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
@@ -248,12 +310,16 @@
     const rect=canvas.getBoundingClientRect(),x=clientX-rect.left,y=clientY-rect.top;
     let nearest=null,distance=30;
     for(let i=0;i<47;i++){
-      const localY=(i-23)*.335,a=project(helix(localY,0)),b=project(helix(localY,1));
-      if(!a||!b)continue;
-      const dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
-      const t=length?Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/length)):0;
-      const d=Math.hypot(x-a.x-t*dx,y-a.y-t*dy);
-      if(d<distance){distance=d;nearest={key:i%2===0?'at':'gc',y:localY,point:[0,localY,0]};}
+      const localY=(i-23)*MODEL.spacing;
+      for(let side=0;side<2;side++){
+        const root=helix(localY,side),tip=[root[0]/1.22*MODEL.halfGap,localY,root[2]/1.22*MODEL.halfGap];
+        const a=project(root),b=project(tip);
+        if(!a||!b)continue;
+        const dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
+        const t=length?Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/length)):0;
+        const d=Math.hypot(x-a.x-t*dx,y-a.y-t*dy);
+        if(d<distance){distance=d;nearest={key:i%2===0?'at':'gc',y:localY,point:[0,localY,0]};}
+      }
     }
     if(nearest)inspect(nearest.key,nearest);
   }
