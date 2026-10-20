@@ -42,7 +42,7 @@ The Pages workflow validates the DOM/renderer contract, publishes a revision man
 
 ## Open DNA visual model
 
-Base arms stop at a wide central gap (1.24 model units across, approximately half the helix diameter) (`MODEL.halfGap` in `app.js`) and never bridge it. The helix also uses separate curved backbone segments with small joints. Cut surfaces include annular rims, inset luminous lenses, tapered sleeves and fine machined rings. This is an exploded design illustration: the visual gaps do not represent severed DNA or imply that complementary bases lack hydrogen bonds. Scientific descriptions remain conceptual rather than atom-scale geometry.
+Base arms stop at a modest central gap (0.56 model units across, approximately 23% of the helix diameter) (`MODEL.halfGap` in `app.js`) and never bridge it. The helix also uses separate curved backbone segments with small joints. Cut surfaces include annular rims, inset luminous lenses, tapered sleeves and fine machined rings. This is an exploded design illustration: the visual gaps do not represent severed DNA or imply that complementary bases lack hydrogen bonds. Scientific descriptions remain conceptual rather than atom-scale geometry.
 
 
 The Pages build uses `scripts/build-site.py` to fingerprint JavaScript, CSS and the favicon by content. Each model update gets a different script URL, preventing the browser from reusing a previous model after the new HTML is loaded. `scripts/verify-live.py` checks the hashed assets referenced by the actual deployed HTML.

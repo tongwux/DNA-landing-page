@@ -169,7 +169,7 @@
   function helix(y,side){const angle=y*1.18+side*Math.PI;return [Math.cos(angle)*1.22,y,Math.sin(angle)*1.22];}
   // Open-ended base arms and separated backbone segments, inspired by the reference.
   // The central gap is intentional: no rod, sphere or luminous bridge crosses it.
-  const MODEL={rungs:47,spacing:.335,halfGap:.62,backboneGap:.075};
+  const MODEL={rungs:47,spacing:.335,halfGap:.28,backboneGap:.075};
   const mixPoint=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
   function axisFrame(axis){
     const length=Math.hypot(...axis),w=axis.map(v=>v/length);
