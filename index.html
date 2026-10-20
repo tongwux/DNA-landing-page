@@ -6,12 +6,10 @@
   <meta name="description" content="Explore the building blocks of discovery. An interactive DNA experience from HELIXA, a fictional life science studio.">
   <title>HELIXA — The potential within</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta property="og:title" content="HELIXA — The potential within">
-  <meta property="og:description" content="Small strands. Infinite potential. Explore an interactive life science experience.">
-  <meta property="og:type" content="website">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#science">Skip to main content</a>
   <header class="header">
     <a class="wordmark" href="#home" aria-label="HELIXA home"><span class="logo-symbol" aria-hidden="true"><i></i><i></i><i></i></span><span>HELIXA<span class="logo-sub">LIFE SCIENCES</span></span></a>
     <nav aria-label="Main navigation"><a href="#science">Our science</a><a href="#solutions">Solutions</a><a href="#about">Our purpose</a></nav>
@@ -24,14 +22,25 @@
       <div class="hero-copy">
         <div class="eyebrow"><span class="status-dot"></span> LIFE SCIENCE. LIMITLESS POTENTIAL.</div>
         <h1 id="hero-title">Small strands.<br>Infinite <span>potential.</span></h1>
-        <p>Within every strand, a world of possibility.<br>Explore the science that brings it to light.</p>
-        <a class="button primary" href="#science">Discover what’s within <span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a>
-        <div class="hero-note"><span class="note-line"></span> From the building blocks of life.<br><span>To your next breakthrough.</span></div>
+        <p>Tools and ideas for molecular discovery.<br>Explore DNA, epigenetics and the microbial world.</p>
+        <a class="button primary" href="#science">Explore our research areas <span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a>
+        <div class="hero-note"><span class="note-line"></span> Click a glowing DNA marker to look closer.<br><span>Drag to rotate. Follow your curiosity.</span></div>
       </div>
-      <div class="dna-stage"><canvas id="dna" tabindex="0" role="img" aria-label="Interactive three-dimensional DNA double helix. Drag to rotate, use arrow keys to turn, or press Space to pause."></canvas><div id="webgl-fallback" hidden><div class="fallback-helix" aria-hidden="true">🧬</div><p>Enable WebGL to explore the interactive DNA.</p></div></div>
+      <div class="dna-stage"><canvas id="dna" tabindex="0" role="img" aria-label="Interactive three-dimensional DNA double helix. Click a base pair to inspect it. Drag to rotate, use arrow keys to turn, Enter to inspect, Escape to return, or Space to pause."></canvas><div class="dna-hotspots" aria-label="Explore DNA structures"><button class="dna-hotspot" data-feature="at" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">A–T BASE PAIR <small>EXPLORE ↗</small></span></button><button class="dna-hotspot" data-feature="gc" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">G–C BASE PAIR <small>EXPLORE ↗</small></span></button><button class="dna-hotspot" data-feature="backbone" aria-controls="dna-inspector" aria-expanded="false"><span class="hotspot-ring">+</span><span class="hotspot-label">THE BACKBONE <small>EXPLORE ↗</small></span></button></div><div id="webgl-fallback" hidden><div class="fallback-helix" aria-hidden="true">🧬</div><p>Enable WebGL to explore the interactive DNA.</p></div></div>
+      <aside class="dna-inspector" id="dna-inspector" aria-labelledby="detail-title" hidden>
+        <button class="explorer-back" id="explorer-back">← <span>Back to full DNA</span><kbd>ESC</kbd></button>
+        <div class="eyebrow">INSIDE THE DOUBLE HELIX <span id="detail-index">01 / 03</span></div>
+        <div class="detail-symbol" id="detail-symbol" aria-hidden="true">A<span>··</span>T</div>
+        <h2 id="detail-title" tabindex="-1">Adenine meets thymine.</h2>
+        <p id="detail-description"></p>
+        <dl class="detail-facts"><div><dt id="detail-fact-label"></dt><dd id="detail-fact-value"></dd></div><div><dt>ROLE</dt><dd id="detail-role"></dd></div></dl>
+        <p class="detail-caption">Simplified molecular illustration · Not to atomic scale</p>
+        <nav class="detail-nav" aria-label="DNA structure details"><button data-detail="at" aria-label="Inspect A–T base pair">A–T</button><button data-detail="gc" aria-label="Inspect G–C base pair">G–C</button><button data-detail="backbone" aria-label="Inspect sugar-phosphate backbone">Backbone</button></nav>
+        <a class="detail-next text-link" href="#solutions">Explore related research areas <span>↗</span></a>
+      </aside>
       <div class="molecule-label label-top"><span class="cross">+</span><div>THE CODE OF LIFE<span>01 / DOUBLE HELIX</span></div></div>
       <div class="molecule-label label-bottom"><span class="cross">+</span><div>FOUR BASES.<br>LIMITLESS POSSIBILITIES.</div></div>
-      <div class="interaction"><span class="drag-icon" aria-hidden="true">↔</span><span>Drag to explore</span><span class="interaction-sep"></span><button id="motion-toggle" aria-label="Pause DNA animation" aria-pressed="false"><span id="motion-icon">Ⅱ</span> <span id="motion-text">Pause motion</span></button></div>
+      <div class="interaction"><span class="drag-icon" aria-hidden="true">↔</span><span>Click to discover · Drag to rotate</span><span class="interaction-sep"></span><button id="motion-toggle" aria-label="Pause DNA animation" aria-pressed="false"><span id="motion-icon">Ⅱ</span> <span id="motion-text">Pause motion</span></button></div>
       <div class="hero-bottom"><span>THE NEXT DISCOVERY STARTS WITH YOU.</span><a href="#science">SCROLL TO DISCOVER <span aria-hidden="true">↓</span></a><span class="hero-index">01 — 03</span></div>
     </section>
     <section class="science section" id="science" aria-labelledby="science-title">
@@ -39,12 +48,20 @@
       <div class="science-layout"><h2 id="science-title">Life is complex.<br><span>Discovery shouldn’t be.</span></h2><div class="science-description"><p>Great science starts with a clear view of what matters. From DNA and RNA to the epigenome, explore the tools that help turn biological questions into new possibilities.</p><a class="text-link" href="#solutions">Find your starting point <span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a></div></div>
       <div class="base-strip" aria-label="The four DNA bases"><div><b>A</b><span>ADENINE</span><small>01</small></div><div><b>T</b><span>THYMINE</span><small>02</small></div><div><b>C</b><span>CYTOSINE</span><small>03</small></div><div><b>G</b><span>GUANINE</span><small>04</small></div></div>
     </section>
-    <section class="solutions section" id="solutions" aria-labelledby="solutions-title"><div class="section-kicker"><span>02 / EXPLORE SOLUTIONS</span><span>BUILT FOR YOUR NEXT QUESTION</span></div><div class="section-heading"><h2 id="solutions-title">A clearer path<br>to your next breakthrough.</h2><a class="text-link" href="#about">Explore HELIXA <span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a></div>
-      <div class="cards"><a class="card" href="#about"><div class="card-top"><span>01</span><span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div><div class="card-art art-dna" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><h3>DNA & RNA</h3><p>Start with the essentials.<br>Unlock what comes next.</p><span class="card-tag">THE FOUNDATION</span></a><a class="card" href="#about"><div class="card-top"><span>02</span><span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div><div class="card-art art-orbit" aria-hidden="true"><i></i><i></i><i></i><b></b></div><h3>Epigenetics</h3><p>Look beyond the sequence.<br>Discover another layer.</p><span class="card-tag">BEYOND THE CODE</span></a><a class="card" href="#about"><div class="card-top"><span>03</span><span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div><div class="card-art art-cells" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><h3>Microbiomics</h3><p>Small worlds.<br>Extraordinary possibilities.</p><span class="card-tag">A WORLD WITHIN</span></a></div>
+    <section class="solutions section" id="solutions" aria-labelledby="solutions-title"><div class="section-kicker"><span>02 / EXPLORE SOLUTIONS</span><span>BUILT FOR YOUR NEXT QUESTION</span></div><div class="section-heading"><h2 id="solutions-title">Three ways to explore<br>the science of life.</h2><a class="text-link" href="#about">Explore HELIXA <span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a></div>
+      <div class="cards"><button class="card" type="button" data-solution="dna" aria-haspopup="dialog"><div class="card-top"><span>01</span><span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div><div class="card-art art-dna" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><h3>DNA & RNA</h3><p>Start with the essentials.<br>Unlock what comes next.</p><span class="card-tag">THE FOUNDATION</span></button><button class="card" type="button" data-solution="epigenetics" aria-haspopup="dialog"><div class="card-top"><span>02</span><span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div><div class="card-art art-orbit" aria-hidden="true"><i></i><i></i><i></i><b></b></div><h3>Epigenetics</h3><p>Look beyond the sequence.<br>Discover another layer.</p><span class="card-tag">BEYOND THE CODE</span></button><button class="card" type="button" data-solution="microbiomics" aria-haspopup="dialog"><div class="card-top"><span>03</span><span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></div><div class="card-art art-cells" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><h3>Microbiomics</h3><p>Small worlds.<br>Extraordinary possibilities.</p><span class="card-tag">A WORLD WITHIN</span></button></div>
     </section>
-    <section class="about section" id="about"><div class="section-kicker"><span>03 / OUR PURPOSE</span><span>CURIOSITY. CODED INTO LIFE.</span></div><span class="eyebrow">CURIOSITY MOVES US FORWARD.</span><h2>Your questions.<br>Our shared <em>possibilities.</em></h2><p>Better tools. Clearer insights. More room to discover.</p><a class="button primary" href="#science">Explore our science <span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a></section>
+    <section class="about section" id="about"><div class="section-kicker"><span>03 / OUR PURPOSE</span><span>CURIOSITY. CODED INTO LIFE.</span></div><span class="eyebrow">CURIOSITY MOVES US FORWARD.</span><h2>Your questions.<br>Our shared <em>possibilities.</em></h2><p>A fictional life science studio, built around real scientific curiosity.</p><a class="button primary" href="#science">Explore our science <span><svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a></section>
   </main>
   <footer><a class="footer-brand" href="#home">HELIXA<span class="footer-sub">LIFE SCIENCES</span><span>CURIOSITY. CODED INTO LIFE.</span></a><span>HELIXA · A fictional life science concept</span><a href="#home">Back to top ↑</a></footer>
+  <dialog class="solution-dialog" id="solution-dialog" aria-labelledby="solution-title">
+    <button class="dialog-close" aria-label="Close research area">×</button>
+    <div class="eyebrow">HELIXA / RESEARCH AREAS <span id="solution-index"></span></div>
+    <h2 id="solution-title"></h2><p id="solution-intro"></p>
+    <ul id="solution-points"></ul>
+    <p class="solution-note">An illustrative research workflow from a fictional life science studio.</p>
+    <button class="button primary" id="solution-explore">Explore the DNA model <span>↗</span></button>
+  </dialog>
   <script src="app.js"></script>
 </body>
 </html>

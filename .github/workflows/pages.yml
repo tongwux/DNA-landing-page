@@ -18,16 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate JavaScript
-        run: node --check app.js
+      - name: Validate page and JavaScript
+        run: npm run check
       - uses: actions/configure-pages@v5
       - name: Prepare static website
         run: |
           mkdir -p _site
           cp index.html styles.css app.js favicon.svg .nojekyll _site/
+          printf '{"commit":"%s"}\n' "$GITHUB_SHA" > _site/release.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify public release and assets
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: python3 scripts/verify-live.py "$SITE_URL" "$EXPECTED_SHA"
