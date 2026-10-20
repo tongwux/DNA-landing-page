@@ -79,17 +79,16 @@
       float facing=max(dot(N,V),0.0);
       float rim=pow(1.0-facing,2.4);
       float diffuse=max(dot(N,L),0.0);
-      // A soft, fibrous surface inspired by scientific macro photography.
+      // Solid-color satin backbones; only the base rods retain subtle grain.
       float spec=pow(max(dot(N,normalize(L+V)),0.0),36.0);
       float fill=max(dot(N,L2),0.0);
       float strand=1.0-step(1.5,vMaterial);
       float grain=sin(dot(vLocalPosition,vec3(113.0,157.0,89.0)))*sin(dot(vLocalPosition,vec3(67.0,-131.0,103.0)));
-      float fibers=sin(vLocalY*115.0+atan(vLocalPosition.z,vLocalPosition.x)*9.0+sin(vLocalY*31.0)*1.6);
       vec3 tint=vec3(.72,.81,.58);
       if(vMaterial>4.5&&vMaterial<5.5)tint=vec3(.86,.85,.62);
       if(vMaterial>5.5&&vMaterial<6.5)tint=vec3(.43,.64,.33);
       if(vMaterial>6.5)tint=vec3(.78,.83,.29);
-      float texture=1.0+strand*(fibers*.10+grain*.055)+(1.0-strand)*grain*.025;
+      float texture=1.0+(1.0-strand)*grain*.025;
       vec3 color=tint*(.28+diffuse*.65+fill*.16)*texture;
       color+=vec3(.89,.96,.77)*spec*.40;
       color+=tint*rim*.24;
@@ -157,7 +156,7 @@
       const y=start+(end-start)*j/stacks,theta=y*1.18+side*Math.PI;
       const center=helix(y,side),{u,v}=axisFrame([-Math.sin(theta)*1.4396,1,Math.cos(theta)*1.4396]);
       const angle=i/slices*Math.PI*2,n=u.map((x,k)=>x*Math.cos(angle)+v[k]*Math.sin(angle));
-      const radius=.114*(1+.018*Math.sin(y*36+angle*7)+.012*Math.sin(y*21-angle*11));
+      const radius=.114;
       return [center.map((x,k)=>x+n[k]*radius),n];
     }
     for(let j=0;j<stacks;j++)for(let i=0;i<slices;i++){

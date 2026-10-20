@@ -12,7 +12,7 @@ The DNA rotates automatically. Drag horizontally to turn it and vertically to ti
 
 ## DNA fragment explorer
 
-Click a tracked marker or a rung of the DNA to fly toward that structure. The camera moves forward, orbits into a close-up, and smoothly tracks between selected fragments. The model uses continuous softly textured backbones and slim paired bases. On desktop, the story appears on the right after the camera starts moving; on mobile it appears below the close-up. The selected fragment is highlighted and an information panel explains A–T pairing, G–C pairing, or the sugar–phosphate backbone. Choose another structure in the panel, or use “Back to full DNA” / Escape to restore the overview. Auto-rotation pauses during inspection and returns to the previous pause state afterward. Dragging more than 7 CSS pixels remains rotation rather than selection. Keyboard users can tab to the markers or focus the canvas and press Enter. Reduced-motion mode applies the camera change immediately.
+Click a tracked marker or a rung of the DNA to fly toward that structure. The camera moves forward, orbits into a close-up, and smoothly tracks between selected fragments. The model uses continuous solid-color satin backbones and slim paired bases. On desktop, the story appears on the right after the camera starts moving; on mobile it appears below the close-up. The selected fragment is highlighted and an information panel explains A–T pairing, G–C pairing, or the sugar–phosphate backbone. Choose another structure in the panel, or use “Back to full DNA” / Escape to restore the overview. Auto-rotation pauses during inspection and returns to the previous pause state afterward. Dragging more than 7 CSS pixels remains rotation rather than selection. Keyboard users can tab to the markers or focus the canvas and press Enter. Reduced-motion mode applies the camera change immediately.
 
 Descriptions are general educational content. The geometry is a simplified illustration, not an atomically accurate molecular model or a specific genomic sequence. Fragment selection data and descriptions are in `features` in `app.js`.
 
@@ -42,7 +42,7 @@ The Pages workflow validates the DOM/renderer contract, publishes a revision man
 
 ## Open DNA visual model
 
-Base arms almost meet, leaving a narrow central seam of 0.08 model units (about 3% of the helix diameter, controlled by `MODEL.halfGap` in `app.js`). The two arms do not bridge that seam. Continuous rounded backbones have a fine procedural fibrous texture; slim bases alternate cream, sage and yellow-green tones. This is a stylized molecular illustration, not atomically accurate geometry.
+Base arms almost meet, leaving a narrow central seam of 0.08 model units (about 3% of the helix diameter, controlled by `MODEL.halfGap` in `app.js`). The two arms do not bridge that seam. Continuous rounded backbones use a smooth solid-color satin material; slim bases alternate cream, sage and yellow-green tones. This is a stylized molecular illustration, not atomically accurate geometry.
 
 
 The Pages build uses `scripts/build-site.py` to fingerprint JavaScript, CSS and the favicon by content. Each model update gets a different script URL, preventing the browser from reusing a previous model after the new HTML is loaded. `scripts/verify-live.py` checks the hashed assets referenced by the actual deployed HTML.
